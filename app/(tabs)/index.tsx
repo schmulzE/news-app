@@ -2,7 +2,7 @@ import axios from "axios";
 import { Linking } from "react-native";
 import Carousel from "react-native-snap-carousel";
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Dimensions } from "react-native";
+import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Dimensions, RefreshControl } from "react-native";
 import TextCarousel from "@/components/TextCarousel";
 
 interface News {
@@ -22,6 +22,7 @@ const Index = () => {
   const [error, setError] = useState<string | null>(null);
   const [filteredNews, setFilteredNews] = useState<News[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("general");
+  const [refreshing, setRefreshing] = useState(false);
 
   const categories = [
     { name: "General", key: "general" },
@@ -43,17 +44,22 @@ const Index = () => {
     }
   }, []);
 
-    // Filter news based on selected category
-    useEffect(() => {
-      filterNewsByCategory(selectedCategory);
-    }, [selectedCategory, news]);
-  
-    const filterNewsByCategory = (category: string) => {
-      const filtered = news.filter((item) =>
-        item.categories.includes(category)
-      );
-      setFilteredNews(filtered);
-    };
+  // Filter news based on selected category
+  useEffect(() => {
+    filterNewsByCategory(selectedCategory);
+  }, [selectedCategory, news]);
+
+  const filterNewsByCategory = (category: string) => {
+    const filtered = news.filter((item) =>
+      item.categories.includes(category)
+    );
+    setFilteredNews(filtered);
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchNews();
+  };
   
 
   useEffect(() => {
@@ -65,7 +71,7 @@ const Index = () => {
       const params = {
         api_token: "s3aTHc7el1qTrLnPdexPVPkaWIoBjiqgN3mGyiEG",
         categories: "general,business,tech", // Add more categories if needed
-        limit: "50",
+        // limit: "50",
         language: "en",
       };
 
@@ -86,25 +92,6 @@ const Index = () => {
       setLoading(false);
     }
   };
-
-  // const renderCarouselItem = ({ item }: { item: { name: string; key: string } }) => (
-  //   <TouchableOpacity
-  //     style={[
-  //       styles.categoryItem,
-  //       selectedCategory === item.key && styles.selectedCategoryItem,
-  //     ]}
-  //     onPress={() => setSelectedCategory(item.key)}
-  //   >
-  //     <Text
-  //       style={[
-  //         styles.categoryText,
-  //         selectedCategory === item.key && styles.selectedCategoryText,
-  //       ]}
-  //     >
-  //       {item.name}
-  //     </Text>
-  //   </TouchableOpacity>
-  // );
 
 
   const renderItem = ({ item }: { item: { url: string; image_url: string; title: string; description: string; source: string; uuid: string } }) => (
@@ -156,21 +143,15 @@ const Index = () => {
           selectedItem={selectedCategory}
           onSelectItem={setSelectedCategory}
         />  
-        {/* <Carousel
-          data={categories}
-          renderItem={renderCarouselItem}
-          sliderWidth={Dimensions.get("window").width}
-          itemWidth={100}
-          inactiveSlideScale={0.9}
-          inactiveSlideOpacity={0.7}
-          activeSlideAlignment="start"
-        /> */}
       </View>
 
       <FlatList
         data={filteredNews}
         renderItem={renderItem}
         keyExtractor={(item) => item.uuid}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
       />
     </View>
   );
