@@ -3,6 +3,7 @@ import { Linking } from "react-native";
 import Carousel from "react-native-snap-carousel";
 import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Dimensions } from "react-native";
+import TextCarousel from "@/components/TextCarousel";
 
 interface News {
   uuid: string;
@@ -86,24 +87,24 @@ const Index = () => {
     }
   };
 
-  const renderCarouselItem = ({ item }: { item: { name: string; key: string } }) => (
-    <TouchableOpacity
-      style={[
-        styles.categoryItem,
-        selectedCategory === item.key && styles.selectedCategoryItem,
-      ]}
-      onPress={() => setSelectedCategory(item.key)}
-    >
-      <Text
-        style={[
-          styles.categoryText,
-          selectedCategory === item.key && styles.selectedCategoryText,
-        ]}
-      >
-        {item.name}
-      </Text>
-    </TouchableOpacity>
-  );
+  // const renderCarouselItem = ({ item }: { item: { name: string; key: string } }) => (
+  //   <TouchableOpacity
+  //     style={[
+  //       styles.categoryItem,
+  //       selectedCategory === item.key && styles.selectedCategoryItem,
+  //     ]}
+  //     onPress={() => setSelectedCategory(item.key)}
+  //   >
+  //     <Text
+  //       style={[
+  //         styles.categoryText,
+  //         selectedCategory === item.key && styles.selectedCategoryText,
+  //       ]}
+  //     >
+  //       {item.name}
+  //     </Text>
+  //   </TouchableOpacity>
+  // );
 
 
   const renderItem = ({ item }: { item: { url: string; image_url: string; title: string; description: string; source: string; uuid: string } }) => (
@@ -145,12 +146,17 @@ const Index = () => {
     <View style={styles.container}>
       {/* Header with Greeting */}
       <View style={styles.header}>
-        <Text style={styles.greeting}>{greeting}</Text>
+        <Text style={styles.greeting}>Hello, {greeting} </Text>
       </View>
 
       {/* Category Carousel */}
       <View style={styles.carouselContainer}>
-        <Carousel
+        <TextCarousel 
+          items={categories.map((item) => item.name)}
+          selectedItem={selectedCategory}
+          onSelectItem={setSelectedCategory}
+        />  
+        {/* <Carousel
           data={categories}
           renderItem={renderCarouselItem}
           sliderWidth={Dimensions.get("window").width}
@@ -158,7 +164,7 @@ const Index = () => {
           inactiveSlideScale={0.9}
           inactiveSlideOpacity={0.7}
           activeSlideAlignment="start"
-        />
+        /> */}
       </View>
 
       <FlatList
@@ -172,7 +178,7 @@ const Index = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 10 },
-  header: { marginBottom: 20 },
+  header: { marginBottom: 20, marginTop: 20 },
   greeting: { fontSize: 24, fontWeight: "bold" },
   newsItem: { marginBottom: 20 },
   image: { width: "100%", height: 200, borderRadius: 10 },
